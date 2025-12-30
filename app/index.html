@@ -1,21 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloxio Mini App</title>
+
+  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #ffffff;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .primary { background: #2563eb; color: #fff; }
+    .success { background: #16a34a; color: #fff; }
+    .danger  { background: #dc2626; color: #fff; }
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+  </style>
 </head>
+
 <body>
-<h3>Bloxio Mini App</h3>
+
+  <h2>BX Mini App</h2>
+
+  <div class="card">
+    <p id="user">Loading user...</p>
+    <p id="wallet">Wallet: —</p>
+    <p id="balance">Balance: —</p>
+  </div>
+
+  <button class="primary" onclick="loadBalance()">🔄 Refresh Balance</button>
+  <button class="success" onclick="claim()">🎁 Claim BX</button>
+  <button class="danger" onclick="withdraw()">⬇️ Withdraw BX</button>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
 
-// Example: show Telegram user
-document.body.insertAdjacentHTML(
-  "beforeend",
-  "<p>User ID: " + tg.initDataUnsafe.user.id + "</p>"
-);
+  const initData = tg.initData;
+  const user = tg.initDataUnsafe?.user;
+
+  // Show user info
+  document.getElementById("user").innerText =
+    user ? `User: @${user.username || user.id}` : "User: unknown";
+
+  // Helper for API calls
+  async function api(path, method = "GET", body = null) {
+    const res = await fetch(path, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "x-telegram-init-data": initData
+      },
+      body: body ? JSON.stringify(body) : null
+    });
+    return res.json();
+  }
+
+  // Load balance
+  async function loadBalance() {
+    const data = await api("/api/balance");
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    document.getElementById("balance").innerText =
+      `Balance: ${data.balance} BX`;
+  }
+
+  // Claim BX
+  async function claim() {
+    const data = await api("/api/claim", "POST");
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    alert("Claim successful");
+    loadBalance();
+  }
+
+  // Withdraw BX
+  async function withdraw() {
+    const amount = prompt("Enter amount to withdraw:");
+    if (!amount) return;
+
+    const data = await api("/api/withdraw", "POST", {
+      amount: Number(amount)
+    });
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    alert("Withdrawal sent");
+    loadBalance();
+  }
+
+  // Initial load
+  loadBalance();
 </script>
+
 </body>
 </html>
