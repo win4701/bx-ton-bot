@@ -1,30 +1,34 @@
 /**
- * STON.fi Swap helper
- * Non-custodial swap via deep links
+ * STON.fi Swap helper (Non-custodial)
+ * Uses official STON.fi swap page
  */
 
-const STON_BASE = "https://app.ston.fi/swap";
+const STON_SWAP_URL = "https://app.ston.fi/swap";
+
+// BX Jetton Master (Mainnet)
+export const BX_JETTON =
+  "EQCRYlkaR6GlssLRrQlBH3HOPJSMk_vzfAAyyuhnriX-7a_a";
 
 /**
  * Build STON.fi swap URL
- * @param {string} from - token address (TON or Jetton)
- * @param {string} to - token address (Jetton or TON)
+ * @param {string} fromToken - "TON" or Jetton address
+ * @param {string} toToken   - "TON" or Jetton address
  */
-export function buildSwapUrl(from, to) {
+export function buildSwapUrl(fromToken, toToken) {
   const params = new URLSearchParams({
-    ft: from,   // from token
-    tt: to      // to token
+    ft: fromToken,
+    tt: toToken
   });
-  return `${STON_BASE}?${params.toString()}`;
+  return `${STON_SWAP_URL}?${params.toString()}`;
 }
 
 /**
- * Predefined swaps
+ * Preset swaps
  */
 export function tonToBX() {
-  return buildSwapUrl("TON", process.env.JETTON_MASTER);
+  return buildSwapUrl("TON", BX_JETTON);
 }
 
 export function bxToTON() {
-  return buildSwapUrl(process.env.JETTON_MASTER, "TON");
+  return buildSwapUrl(BX_JETTON, "TON");
 }
