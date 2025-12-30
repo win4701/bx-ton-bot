@@ -7,7 +7,7 @@ import express from "express";
 
 import { getWallet, saveWallet, hasClaimed, markClaimed } from "./db.js";
 import { getBalance, claimBX, withdrawBX } from "./ton.js";
-import { canWithdraw } from "./antifraud.js";
+import { canWithdraw } from "./limits.js";
 import { tonToBX, bxToTON } from "./swap.js";
 
 /* =========================
