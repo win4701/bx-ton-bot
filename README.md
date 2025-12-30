@@ -17,10 +17,13 @@ Includes wallet connection, balance, claim/airdrop, withdrawals, anti-fraud limi
 
 ---
 
-## Swap (Live)
+## DEX Listing
 
-BX is live on STON.fi DEX.
+BX token has been successfully listed on the TON decentralized exchange **STON.fi**.
 
 - Network: TON
-- Jetton: EQCRYlkaR6GlssLRrQlBH3HOPJSMk_vzfAAyyuhnriX-7a_a
-- Swap: TON ↔ BX via `/swap`
+- DEX: STON.fi
+- Trading Pair: BX / TON
+- Status: Live
+
+This listing enables permissionless trading and liquidity provision for BX holders.
