@@ -18,14 +18,15 @@ dotenv.config();
 /* =========================
    Express Server (Required for Render + Mini App)
 ========================= */
+const express = require('express');
 const app = express();
 
-// Serve Mini App static files
-app.use(express.static("app"));
+/* any middlewares */
+app.use(express.json());
 
-// Health check (important for Render)
-app.get("/health", (req, res) => {
-  res.send("OK");
+/* ✅   Main route */
+app.get('/', (req, res) => {
+  res.status(200).send('BOT IS LIVE');
 });
 
 // Start HTTP server
