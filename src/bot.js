@@ -77,7 +77,7 @@ bot.onText(/\/start/, async (msg) => {
    /wallet
 ========================= */
 bot.onText(/\/wallet/, async (msg) => {
-  const projectWallet = "EQD_PROJECT_WALLET_ADDRESS";
+  const projectWallet = "EQCRYlkaR6GlssLRrQlBH3HOPJSMk_vzfAAyyuhnriX-7a_a";
   const link = `ton://transfer/${projectWallet}?amount=0&text=BX_CONNECT`;
 
   bot.sendMessage(msg.chat.id, "Connect your TON wallet:", {
@@ -175,7 +175,7 @@ bot.onText(/\/swap/, async (msg) => {
 bot.onText(/\/pool/, async (msg) => {
   bot.sendMessage(
     msg.chat.id,
-    "💧 BX Liquidity Pool on STON.fi:\nhttps://ston.fi/pools/YOUR_POOL_ADDRESS"
+    "💧 BX Liquidity Pool on STON.fi:\nhttps://ston.fi/pools/EQCRYlkaR6GlssLRrQlBH3HOPJSMk_vzfAAyyuhnriX-7a_a"
   );
 });
 
