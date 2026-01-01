@@ -4,39 +4,41 @@ dotenv.config();
 import express from "express";
 import TelegramBot from "node-telegram-bot-api";
 import path from "path";
-import { fileURLToPath } from "url";
 
-import { pool } from "./db/pg.js";
-import "./public/analytics.js";
-import "./public/proof.js";
+import { registerMessages } from "./bot/messages.js";
+import { registerCallbacks } from "./bot/callbacks.js";
+import { stressAutoExit } from "./safety/stressAutoExit.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import airdropRoutes from "./routes/airdrop.js";
+import buyRoutes from "./routes/buy.js";
+import sellRoutes from "./routes/sell.js";
+import priceRoutes from "./routes/price.js";
+import historyRoutes from "./routes/history.js";
+import monitorRoutes from "./routes/monitor.js";
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../app")));
 
+/* API */
+app.use("/api/airdrop", airdropRoutes);
+app.use("/api/buy", buyRoutes);
+app.use("/api/sell", sellRoutes);
+app.use("/api/price", priceRoutes);
+app.use("/api/history", historyRoutes);
+app.use("/admin/monitor", monitorRoutes);
+
+/* Mini App */
+app.use("/app", express.static(path.join(process.cwd(), "app")));
+app.use("/", express.static(path.join(process.cwd(), "public")));
+
+/* Telegram Bot */
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+registerMessages(bot);
+registerCallbacks(bot);
 
-/* ===== Telegram Bot ===== */
-bot.onText(/\/start\s*(\w+)?/, async (msg) => {
-  await bot.sendMessage(
-    msg.chat.id,
-    "Welcome to Bloxio.\nPlay. Decide. Own BX.",
-    {
-      reply_markup: {
-        inline_keyboard: [[
-          { text: "🚀 Open App", web_app: { url: process.env.APP_URL } }
-        ]]
-      }
-    }
-  );
-});
+/* Stress Auto Exit */
+setInterval(() => stressAutoExit(bot), 60_000);
 
-/* ===== Health ===== */
-app.get("/health", (_, res) => res.send("OK"));
-
-/* ===== Start Server ===== */
+/* Server */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on", PORT));
+app.listen(PORT, () => console.log("BX Bot running on", PORT));
