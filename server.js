@@ -13,8 +13,10 @@ const db = new Pool({
 });
 
 /* ================= BOT ================= */
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
-
+const if (!process.env.BOT_TOKEN) {
+  console.error("BOT_TOKEN missing");
+  process.exit(1);
+}
 /* ================= APP ================= */
 const app = express();
 app.use(express.json());
