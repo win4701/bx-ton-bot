@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bloxio Analytics</title>
+  <title>Bloxio • Public Analytics</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/app/styles.css" />
   <style>
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
     .kpi{background:#12182a;border-radius:12px;padding:16px}
-    .kpi h3{margin:0 0 8px;font-size:14px;color:#9aa3b2}
-    .kpi .v{font-size:22px;font-weight:700}
+    .kpi h3{margin:0 0 6px;font-size:13px;color:#9aa3b2}
+    .kpi .v{font-size:22px;font-weight:800}
     .muted{color:#9aa3b2;font-size:12px}
+    .card{background:#12182a;border-radius:12px;padding:16px;margin-top:12px}
+    canvas{width:100%;background:#0b0f1a;border-radius:8px}
     @media(max-width:640px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -45,26 +47,61 @@
 
     <section class="card">
       <h2>Market</h2>
-      <p class="muted">Source: internal price + STON reference</p>
       <div class="v" id="price">—</div>
       <div class="muted" id="change">—</div>
+    </section>
+
+    <section class="card">
+      <h2>24h Volume Chart</h2>
+      <canvas id="volChart" height="140"></canvas>
+      <div class="muted">Source: internal + STON reference</div>
     </section>
   </main>
 
   <script>
-    async function load(){
+    async function loadKPIs(){
       const a = await fetch("/api/analytics").then(r=>r.json());
-      users.textContent = a.users ?? "—";
-      vol24.textContent = a.volume24 ?? "—";
+      users.textContent  = a.users ?? "—";
+      vol24.textContent  = a.volume24 ?? "—";
       burned.textContent = a.burned ?? "—";
-      games.textContent = a.games ?? "—";
+      games.textContent  = a.games ?? "—";
 
       const p = await fetch("/api/price").then(r=>r.json());
-      price.textContent = `BX/TON: ${p.price}`;
+      price.textContent  = `BX/TON: ${p.price}`;
       change.textContent = `24h: ${p.change24h}`;
     }
-    load();
-    setInterval(load, 30000);
+
+    function drawChart(points){
+      const c = document.getElementById("volChart");
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+
+      const pad = 12;
+      const w = c.width - pad*2;
+      const h = c.height - pad*2;
+      const max = Math.max(...points, 1);
+
+      ctx.beginPath();
+      ctx.strokeStyle = "#f5c26b";
+      ctx.lineWidth = 2;
+
+      points.forEach((v,i)=>{
+        const x = pad + (i/(points.length-1))*w;
+        const y = pad + h - (v/max)*h;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    }
+
+    async function loadChart(){
+      const s = await fetch("/api/analytics/series").then(r=>r.json());
+      drawChart(s.volume24hSeries || []);
+    }
+
+    loadKPIs();
+    loadChart();
+    setInterval(loadKPIs, 30000);
+    setInterval(loadChart, 60000);
   </script>
 </body>
 </html>
