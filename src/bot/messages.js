@@ -1,15 +1,20 @@
 export function registerMessages(bot) {
-  bot.onText(/\/start\s*(.*)?/, async (msg) => {
-    bot.sendMessage(msg.chat.id, "Welcome to Bloxio (BX)", {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "🎁 Airdrop", callback_data: "airdrop" }],
-          [{ text: "💱 Buy / Sell BX", callback_data: "payments" }],
-          [{ text: "📈 Price", callback_data: "price" }],
-          [{ text: "🧭 Ecosystem", callback_data: "portfolio" }],
-          [{ text: "🚀 Open App", web_app: { url: process.env.APP_URL } }]
-        ]
-      }
-    });
+  bot.onText(/\/start\s?(.*)?/, async (msg, match) => {
+    bot.sendMessage(msg.chat.id,
+`Welcome to Bloxio (BX)
+
+• Buy / Sell BX
+• Games & Tournaments
+• Cloud Mining`,
+{
+  reply_markup:{
+    inline_keyboard:[
+      [{ text:"💳 Buy BX", callback_data:"buy_bx" }],
+      [{ text:"🔄 Sell BX", callback_data:"sell_bx" }],
+      [{ text:"⛏️ Cloud Mining", callback_data:"mining" }],
+      [{ text:"🚀 Open App", web_app:{ url:process.env.APP_URL }}]
+    ]
+  }
+});
   });
 }
