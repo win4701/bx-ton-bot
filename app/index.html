@@ -1,34 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bloxio BX</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bloxio (BX)</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<header>
-  <h1>Bloxio (BX)</h1>
-</header>
+<!-- APP -->
+<div id="app">
 
-<main>
-  <section class="card">
-    <h2>BX Trade</h2>
-    <button onclick="buy()">Buy BX</button>
-    <button onclick="sell()">Sell BX</button>
+  <!-- HEADER -->
+  <header class="header">
+    <img src="bx-logo.png" class="logo" />
+    <span class="title">Bloxio (BX)</span>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Play • Earn • Trade</h1>
+    <p>Real liquidity. Transparent rules.</p>
+    <button class="primary" onclick="goPlay()">▶ PLAY NOW</button>
   </section>
 
-  <section class="card">
-    <h2>Cloud Mining</h2>
-    <button onclick="mining()">Open Mining</button>
+  <!-- GAMES -->
+  <section id="play" class="card">
+    <h2>🎮 Games</h2>
+    <div class="grid">
+      <div class="game" onclick="playGame('crash')">💥 Crash BX</div>
+      <div class="game" onclick="playGame('chicken')">🐔 Chicken Road</div>
+      <div class="game disabled">⚔️ PVP (Soon)</div>
+    </div>
   </section>
 
+  <!-- REWARDS -->
   <section class="card">
-    <h2>Tournament</h2>
-    <button onclick="tournament()">Weekly Tournament</button>
+    <h2>🎁 Rewards</h2>
+    <ul class="tasks">
+      <li>Join Telegram <span>+5 BX</span></li>
+      <li>Play 3 Games <span>+10 BX</span></li>
+      <li>Invite Friend <span>+20 BX</span></li>
+    </ul>
+    <button onclick="openAirdrop()">Claim Rewards</button>
   </section>
-</main>
+
+  <!-- WALLET -->
+  <section class="card">
+    <h2>💰 Wallet</h2>
+    <div class="balance">BX Balance: <b id="balance">0</b></div>
+    <div class="locked">Withdraw unlocks at Level 3</div>
+  </section>
+
+  <!-- BUY -->
+  <section class="card">
+    <h2>🔄 Buy BX</h2>
+    <button onclick="buyBX('ton')">Buy with TON</button>
+    <button onclick="buyBX('usdt')">Buy with USDT</button>
+  </section>
+
+  <!-- MARKET -->
+  <section class="card">
+    <h2>📊 Market</h2>
+    <div class="chart-placeholder">BX / TON Chart</div>
+    <small>Powered by STON.fi</small>
+  </section>
+
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button onclick="go('play')">Play</button>
+  <button onclick="openAirdrop()">Rewards</button>
+  <button onclick="goWallet()">Wallet</button>
+  <button onclick="goBuy()">Buy</button>
+  <button onclick="goMarket()">Market</button>
+</nav>
 
 <script src="app.js"></script>
 </body>
