@@ -1,22 +1,63 @@
-let balance = 0;
+let currentCrashRound = null;
+let currentChickenGame = null;
 
-const clickSound = new Audio("sounds/click.mp3");
-const winSound = new Audio("sounds/win.mp3");
-
-function playGame(type){
-  clickSound.play();
-  const win = Math.random() > 0.5;
-  if(win){
-    balance += 2;
-    winSound.play();
-  }
-  document.getElementById("balance").innerText = balance;
+function openScreen(id) {
+  document.querySelectorAll(".screen")
+    .forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-function openAirdrop(){
-  alert("Complete tasks in Telegram bot");
+// ===== Crash =====
+async function startCrash() {
+  const bet = document.getElementById("crashBet").value;
+  const res = await fetch("/api/crash/start", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ bet })
+  });
+  const data = await res.json();
+  currentCrashRound = data.roundId;
+  document.getElementById("crashStatus").innerText = "Running...";
 }
 
-function buyBX(type){
-  alert("Redirecting to admin payment: " + type);
+async function cashoutCrash() {
+  await fetch("/api/crash/cashout", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ roundId: currentCrashRound })
+  });
+  document.getElementById("crashStatus").innerText = "Cashed!";
+}
+
+// ===== Chicken =====
+async function startChicken() {
+  const bet = document.getElementById("chickenBet").value;
+  const res = await fetch("/api/chicken/start", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ bet })
+  });
+  const data = await res.json();
+  currentChickenGame = data.gameId;
+  document.getElementById("chickenStatus").innerText = "Started";
+}
+
+async function stepChicken() {
+  const res = await fetch("/api/chicken/step", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ gameId: currentChickenGame })
+  });
+  const data = await res.json();
+  document.getElementById("chickenStatus").innerText =
+    data.alive ? "Safe!" : "💥 Lost";
+}
+
+async function cashoutChicken() {
+  await fetch("/api/chicken/cashout", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ gameId: currentChickenGame })
+  });
+  document.getElementById("chickenStatus").innerText = "Cashed!";
 }
