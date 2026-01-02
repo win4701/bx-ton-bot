@@ -1,27 +1,69 @@
 body {
+  margin:0;
+  font-family: system-ui;
   background:#0b0f1a;
   color:#fff;
-  font-family:system-ui;
 }
 
-header {
-  padding:16px;
-  border-bottom:1px solid #222;
+.header {
+  display:flex;
+  align-items:center;
+  padding:12px;
+  background:#11162a;
+}
+
+.logo { width:36px; margin-right:8px; }
+
+.hero {
+  text-align:center;
+  padding:30px 16px;
+}
+
+.primary {
+  background:linear-gradient(135deg,#f5b000,#ffcc33);
+  border:none;
+  padding:14px 24px;
+  border-radius:12px;
+  font-weight:bold;
 }
 
 .card {
-  background:#12182a;
-  margin:16px;
+  background:#131a33;
+  margin:12px;
   padding:16px;
-  border-radius:12px;
+  border-radius:14px;
 }
 
-button {
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.game {
+  background:#1d2550;
+  padding:16px;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+}
+
+.game.disabled {
+  opacity:0.4;
+}
+
+.tasks li {
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+
+.nav {
+  position:fixed;
+  bottom:0;
   width:100%;
-  padding:12px;
-  margin-top:8px;
-  border:none;
-  border-radius:8px;
-  background:#f5c26b;
-  font-weight:bold;
+  background:#11162a;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
 }
