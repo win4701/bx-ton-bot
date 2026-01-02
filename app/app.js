@@ -2,18 +2,25 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-function send(action, payload = {}) {
-  tg.sendData(JSON.stringify({ action, ...payload }));
+function show(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
 }
 
 window.App = {
-  playChicken: () => send("PLAY_CHICKEN"),
-  playCrash: () => send("PLAY_CRASH"),
+  go: show,
 
-  buyBX: () => send("BUY_BX"),
-  sellBX: () => send("SELL_BX"),
+  buyBX() {
+    tg.sendData(JSON.stringify({ action: "BUY_BX" }));
+  },
 
-  openAirdrop: () => send("OPEN_AIRDROP"),
-  openMarket: () => send("OPEN_MARKET"),
-  openProof: () => send("OPEN_PROOF"),
+  sellBX() {
+    tg.sendData(JSON.stringify({ action: "SELL_BX" }));
+  },
+
+  openProof() {
+    tg.sendData(JSON.stringify({ action: "OPEN_PROOF" }));
+  }
 };
+
+show("home");
