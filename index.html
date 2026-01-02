@@ -1,304 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Bloxio Casino (BX)</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>Bloxio</title>
 <style>
-/* ===== Base ===== */
-*{box-sizing:border-box}
-body{
-  margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background:radial-gradient(circle at top,#0f172a,#020617);
-  color:#e5e7eb;
-}
-h1,h2,h3{margin:0 0 8px}
-button{cursor:pointer}
-.hidden{display:none}
-
-/* ===== Header ===== */
-.header{
-  position:sticky; top:0; z-index:5;
-  display:flex; justify-content:space-between; align-items:center;
-  padding:14px 16px; background:#020617; border-bottom:1px solid #0b1220;
-}
-.logo{font-weight:800; letter-spacing:.5px; color:#facc15}
-.balance{font-weight:700; color:#22c55e}
-
-/* ===== Layout ===== */
-main{padding:16px; padding-bottom:92px}
-.page{display:none}
-.page.active{display:block}
-
-/* ===== Cards ===== */
-.card{
-  background:linear-gradient(145deg,#020617,#0b1220);
-  border:1px solid #0b1220;
-  border-radius:16px; padding:16px; margin-bottom:14px;
-  box-shadow:0 10px 24px rgba(0,0,0,.35);
-}
-.card.small{padding:12px}
-
-/* ===== Buttons ===== */
-.btn{
-  width:100%; padding:12px 14px; border-radius:12px;
-  border:1px solid #1f2937; background:#0b1220; color:#e5e7eb; font-weight:700;
-}
-.btn.primary{background:#facc15; color:#020617; border:none}
-.btn.danger{background:#ef4444; color:#fff; border:none}
-.btn.row{display:flex; gap:10px}
-.btn.inline{width:auto}
-
-/* ===== Games Grid ===== */
-.games{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
-.game{
-  background:#020617; border:1px solid #0b1220; border-radius:14px; padding:14px;
-}
-.game h3{font-size:15px}
-.game .play{margin-top:10px}
-
-/* ===== Crash ===== */
-.crash-box{
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-}
-.mult{font-size:32px; font-weight:900; color:#22c55e}
-.mult.crashed{color:#ef4444}
-
-/* ===== Bottom Nav ===== */
-.nav{
-  position:fixed; left:0; right:0; bottom:0; z-index:6;
-  display:flex; background:#020617; border-top:1px solid #0b1220;
-}
-.nav button{
-  flex:1; padding:12px 6px; background:none; border:none; color:#9ca3af; font-weight:700;
-}
-.nav button.active{color:#facc15}
-
-/* ===== Inputs ===== */
-input{
-  width:100%; padding:12px; border-radius:12px; border:1px solid #1f2937;
-  background:#020617; color:#e5e7eb;
-}
-
-/* ===== Helpers ===== */
-.muted{color:#9ca3af}
-.row{display:flex; gap:10px}
-.spacer{height:6px}
+body{margin:0;background:#070a14;color:#e5e7eb;font-family:sans-serif}
+header{padding:14px;font-weight:900}
+.card{background:#0b1020;margin:10px;padding:12px;border-radius:12px}
+button{width:100%;padding:12px;margin-top:6px;border:none;border-radius:10px;font-weight:700}
+.primary{background:#facc15;color:#020617}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#020617}
+nav button{flex:1;background:none;color:#9ca3af}
 </style>
 </head>
-
 <body>
 
-<header class="header">
-  <div class="logo">Bloxio • BX</div>
-  <div class="balance">BX <span id="bxBalance">—</span></div>
-</header>
+<header>BX — Bloxio</header>
 
-<main>
+<div class="card">
+<h3>🎰 Casino</h3>
+<button onclick="play('crash')" class="primary">Crash</button>
+<button onclick="play('chicken')">Chicken</button>
+<button onclick="play('dice')">Dice</button>
+</div>
 
-  <!-- ===== PLAY ===== -->
-  <section id="play" class="page active">
-    <div class="card">
-      <h2>🎮 Play</h2>
-      <p class="muted">Real games · Server-side results</p>
-    </div>
+<div class="card">
+<h3>⛏️ Mining</h3>
+<button onclick="mine()">Claim BNB / SOL</button>
+</div>
 
-    <div class="games">
-      <div class="game">
-        <h3>🚀 Crash BX</h3>
-        <p class="muted">Cashout before crash</p>
-        <button class="btn primary play" onclick="openCrash()">Play</button>
-      </div>
-      <div class="game">
-        <h3>🐔 Chicken Road</h3>
-        <p class="muted">Step & cashout</p>
-        <button class="btn play" onclick="toast('Chicken coming next')">Play</button>
-      </div>
-      <div class="game">
-        <h3>🎲 Dice</h3>
-        <p class="muted">High risk, fast</p>
-        <button class="btn play" onclick="toast('Dice coming next')">Play</button>
-      </div>
-      <div class="game">
-        <h3>⚔️ PVP</h3>
-        <p class="muted">Player vs Player</p>
-        <button class="btn play" onclick="toast('PVP coming next')">Play</button>
-      </div>
-    </div>
+<div class="card">
+<h3>💰 Wallet</h3>
+<button onclick="buyTon()">Buy BX (TON)</button>
+<button onclick="buyUsdt()">Buy BX (USDT)</button>
+</div>
 
-    <!-- Crash Panel -->
-    <div id="crashPanel" class="card hidden">
-      <h3>🚀 Crash BX</h3>
-      <div class="crash-box">
-        <div id="mult" class="mult">1.00x</div>
-        <div class="row">
-          <input id="crashBet" type="number" min="1" placeholder="Bet BX" />
-          <input id="cashMult" type="number" step="0.01" placeholder="Cashout x" />
-        </div>
-        <div class="row">
-          <button class="btn primary inline" onclick="startCrash()">Start</button>
-          <button class="btn danger inline" onclick="cashout()">Cashout</button>
-        </div>
-        <p id="crashMsg" class="muted"></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== WALLET ===== -->
-  <section id="wallet" class="page">
-    <div class="card">
-      <h2>💼 Wallet</h2>
-      <p class="muted">Balance • Buy • Sell</p>
-      <p><b>BX Balance:</b> <span id="bxBalance2">—</span></p>
-    </div>
-
-    <div class="card">
-      <h3>Buy BX (TON)</h3>
-      <input id="buyTon" type="number" min="1" placeholder="TON amount" />
-      <div class="spacer"></div>
-      <button class="btn primary" onclick="buyTON()">Buy</button>
-      <p class="muted">Send TON to admin wallet, then approve.</p>
-    </div>
-
-    <div class="card">
-      <h3>Sell BX</h3>
-      <input id="sellBx" type="number" min="1" placeholder="BX amount" />
-      <div class="spacer"></div>
-      <button class="btn" onclick="sellBX()">Request Sell</button>
-    </div>
-  </section>
-
-  <!-- ===== REWARDS ===== -->
-  <section id="rewards" class="page">
-    <div class="card">
-      <h2>🎁 Rewards</h2>
-      <ul>
-        <li>Join Telegram → <b>+5 BX</b></li>
-        <li>Play 3 games → <b>+10 BX</b></li>
-        <li>Invite friend → <b>+20 BX</b></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ===== MARKET ===== -->
-  <section id="market" class="page">
-    <div class="card">
-      <h2>📊 Market</h2>
-      <p class="muted">BX price from STON.fi (embed next)</p>
-      <div class="card small">Chart placeholder</div>
-    </div>
-  </section>
-
-  <!-- ===== MORE ===== -->
-  <section id="more" class="page">
-    <div class="card">
-      <h2>⚙️ More</h2>
-      <button class="btn" onclick="sendAction('OPEN_PROOF')">Proof</button>
-      <div class="spacer"></div>
-      <button class="btn" onclick="sendAction('OPEN_ANALYTICS')">Analytics</button>
-      <div class="spacer"></div>
-      <button class="btn" onclick="sendAction('OPEN_TERMS')">Terms</button>
-    </div>
-  </section>
-
-</main>
-
-<nav class="nav">
-  <button class="active" onclick="go('play',this)">Play</button>
-  <button onclick="go('wallet',this)">Wallet</button>
-  <button onclick="go('rewards',this)">Rewards</button>
-  <button onclick="go('market',this)">Market</button>
-  <button onclick="go('more',this)">More</button>
-</nav>
+<div class="card">
+<button onclick="proof()">🔎 Proof</button>
+</div>
 
 <script>
-/* ===== Telegram WebApp ===== */
-const tg = window.Telegram?.WebApp;
-if(tg){ tg.ready(); tg.expand(); }
+const tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand();}
+const uid=tg?.initDataUnsafe?.user?.id||0;
 
-/* ===== State ===== */
-let crashPoint = null;
-let multTimer = null;
-let currentMult = 1.00;
-
-/* ===== UI Helpers ===== */
-function go(id,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-function toast(msg){ alert(msg); }
-
-/* ===== Play: Crash ===== */
-function openCrash(){
-  document.getElementById('crashPanel').classList.remove('hidden');
-}
-function startCrash(){
-  const bet = Number(document.getElementById('crashBet').value||0);
-  if(!bet) return toast('Enter bet');
-  fetch('/crash/start',{method:'POST'})
-    .then(r=>r.json())
-    .then(d=>{
-      crashPoint = d.point; // server-side secret; UI only animates
-      currentMult = 1.00;
-      document.getElementById('mult').classList.remove('crashed');
-      document.getElementById('crashMsg').innerText = 'Running...';
-      clearInterval(multTimer);
-      multTimer = setInterval(()=>{
-        currentMult += 0.01;
-        document.getElementById('mult').innerText = currentMult.toFixed(2)+'x';
-        if(currentMult >= crashPoint){
-          clearInterval(multTimer);
-          document.getElementById('mult').classList.add('crashed');
-          document.getElementById('crashMsg').innerText = 'Crashed!';
-        }
-      }, 80);
-    });
-}
-function cashout(){
-  const bet = Number(document.getElementById('crashBet').value||0);
-  const want = Number(document.getElementById('cashMult').value||currentMult);
-  fetch('/crash/cashout',{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ bet, mult: want, point: crashPoint })
-  }).then(r=>r.json()).then(d=>{
-    clearInterval(multTimer);
-    document.getElementById('crashMsg').innerText = d.win ? 'Win: '+d.win+' BX' : 'Lose';
+async function play(g){
+  const r=await fetch('/casino/'+(g==='chicken'?'chicken':g),{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({bet:10})
   });
+  alert(JSON.stringify(await r.json()));
 }
 
-/* ===== Wallet ===== */
-function buyTON(){
-  const ton = Number(document.getElementById('buyTon').value||0);
-  if(!ton) return toast('Enter TON');
-  fetch('/buy-ton',{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      telegramId: tg?.initDataUnsafe?.user?.id,
-      ton,
-      txHash: 'USER_TX_HASH'
-    })
-  }).then(()=>toast('Request sent'));
-}
-function sellBX(){
-  const bx = Number(document.getElementById('sellBx').value||0);
-  if(!bx) return toast('Enter BX');
-  fetch('/sell-bx',{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      telegramId: tg?.initDataUnsafe?.user?.id,
-      bx
-    })
-  }).then(()=>toast('Sell request sent'));
+async function mine(){
+  const r=await fetch('/mining/claim',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid})});
+  alert(JSON.stringify(await r.json()));
 }
 
-/* ===== Bot Actions ===== */
-function sendAction(action){
-  if(tg) tg.sendData(JSON.stringify({action}));
+async function buyTon(){
+  const ton=prompt("TON amount");
+  const r=await fetch('/buy/ton',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid,ton})});
+  alert(JSON.stringify(await r.json()));
+}
+
+async function buyUsdt(){
+  const amount=prompt("USDT amount");
+  await fetch('/buy/usdt',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:uid,provider:'binance',amount})});
+  alert("Pending approval");
+}
+
+async function proof(){
+  const r=await fetch('/proof'); alert(JSON.stringify(await r.json()));
 }
 </script>
-
 </body>
 </html>
