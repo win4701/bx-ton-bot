@@ -1,66 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Bloxio BX</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-<header class="top">
-  <div class="logo">BX</div>
-  <div class="balance">
-    BX <span id="bxBalance">0</span>
-  </div>
-</header>
+<header>Bloxio (BX)</header>
 
-<main id="view">
+<section class="card">
+  <h3>Wallet</h3>
+  <button onclick="App.buyBX()">Buy BX</button>
+  <button onclick="App.sellBX()">Sell BX</button>
+</section>
 
-  <!-- HOME -->
-  <section class="screen active" id="home">
-    <h2>🎮 Games</h2>
+<section class="card">
+  <h3>Play</h3>
+  <button onclick="App.playChicken()">🐔 Chicken</button>
+  <button onclick="App.playCrash()">📈 Crash</button>
+</section>
 
-    <div class="card" onclick="openScreen('crash')">
-      🚀 Crash BX
-    </div>
+<section class="card">
+  <h3>Rewards</h3>
+  <button onclick="App.openAirdrop()">🎁 Airdrop</button>
+</section>
 
-    <div class="card" onclick="openScreen('chicken')">
-      🐔 Chicken Road
-    </div>
+<section class="card">
+  <h3>Market</h3>
+  <button onclick="App.openMarket()">📊 BX Chart</button>
+</section>
 
-    <div class="card disabled">
-      🎲 Dice (Coming)
-    </div>
-  </section>
-
-  <!-- CRASH -->
-  <section class="screen" id="crash">
-    <h2>🚀 Crash BX</h2>
-    <input id="crashBet" type="number" placeholder="Bet BX"/>
-    <button onclick="startCrash()">Start</button>
-    <button class="danger" onclick="cashoutCrash()">Cashout</button>
-    <p id="crashStatus"></p>
-  </section>
-
-  <!-- CHICKEN -->
-  <section class="screen" id="chicken">
-    <h2>🐔 Chicken Road</h2>
-    <input id="chickenBet" type="number" placeholder="Bet BX"/>
-    <button onclick="startChicken()">Start</button>
-    <button onclick="stepChicken()">Step</button>
-    <button class="danger" onclick="cashoutChicken()">Cashout</button>
-    <p id="chickenStatus"></p>
-  </section>
-
-</main>
-
-<nav class="bottom">
-  <button onclick="openScreen('home')">Home</button>
-  <button onclick="openScreen('market')">Market</button>
-  <button onclick="openScreen('rewards')">Rewards</button>
-  <button onclick="openScreen('more')">More</button>
-</nav>
+<section class="card">
+  <h3>More</h3>
+  <button onclick="App.openProof()">🔒 Proof</button>
+</section>
 
 <script src="app.js"></script>
 </body>
