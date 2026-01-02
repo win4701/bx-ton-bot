@@ -1,20 +1,31 @@
-export function registerMessages(bot) {
-  bot.onText(/\/start\s?(.*)?/, async (msg, match) => {
-    bot.sendMessage(msg.chat.id,
-`Welcome to Bloxio (BX)
+import { pool } from "../db/pg.js";
 
-• Buy / Sell BX
-• Games & Tournaments
-• Cloud Mining`,
-{
-  reply_markup:{
-    inline_keyboard:[
-      [{ text:"💳 Buy BX", callback_data:"buy_bx" }],
-      [{ text:"🔄 Sell BX", callback_data:"sell_bx" }],
-      [{ text:"⛏️ Cloud Mining", callback_data:"mining" }],
-      [{ text:"🚀 Open App", web_app:{ url:process.env.APP_URL }}]
-    ]
-  }
-});
-  });
+export async function handleProof(bot, msg) {
+  if (!msg.photo && !msg.document) return;
+
+  const userId = msg.from.id;
+
+  const fileId =
+    msg.photo?.slice(-1)[0]?.file_id ||
+    msg.document?.file_id;
+
+  if (!fileId) return;
+
+  const file = await bot.getFile(fileId);
+  const proofUrl =
+    `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
+
+  await pool.query(
+    `UPDATE usdt_orders
+     SET proof_url=$1
+     WHERE user_id=$2 AND status='PENDING'
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [proofUrl, userId]
+  );
+
+  await bot.sendMessage(
+    userId,
+    "✅ Proof received. Awaiting admin approval."
+  );
 }
