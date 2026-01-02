@@ -1,72 +1,130 @@
 import express from "express";
 import TelegramBot from "node-telegram-bot-api";
-import pkg from "pg";
 import dotenv from "dotenv";
+import crypto from "crypto";
 
 dotenv.config();
-const { Pool } = pkg;
 
-/* ================= DB ================= */
-const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-/* ================= BOT ================= */
-const if (!process.env.BOT_TOKEN) {
-  console.error("BOT_TOKEN missing");
+if (!process.env.BOT_TOKEN) {
+  console.error("❌ BOT_TOKEN missing");
   process.exit(1);
 }
-/* ================= APP ================= */
+
 const app = express();
 app.use(express.json());
+app.use(express.static("."));
 
-/* ===== Serve Mini App ===== */
-app.get("/", (req, res) => {
-  res.sendFile(process.cwd() + "/index.html");
-});
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
-/* ================= BOT LOGIC ================= */
-bot.onText(/\/start/, async (msg) => {
+/* ======================
+   In-Memory Store (مرحلة 1)
+====================== */
+const users = {};
+const adminIds = [/* ضع ID الأدمن هنا */];
+
+/* ======================
+   Helpers
+====================== */
+function getUser(id) {
+  if (!users[id]) {
+    users[id] = {
+      bx: 0,
+      pendingBuy: null,
+    };
+  }
+  return users[id];
+}
+
+/* ======================
+   Telegram Bot
+====================== */
+bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
+  getUser(chatId);
 
-  await db.query(`
-    INSERT INTO users (telegram_id)
-    VALUES ($1)
-    ON CONFLICT DO NOTHING
-  `, [chatId]);
-
-  bot.sendMessage(chatId,
-`🎰 Bloxio Casino
-
-Wallet • Games • Rewards • Market
-
-👇 Open Mini App`,
-  {
+  bot.sendMessage(chatId, "🎰 Welcome to Bloxio Casino\nChoose an action:", {
     reply_markup: {
-      inline_keyboard: [[
-        { text: "🚀 Open App", web_app: { url: process.env.APP_URL } }
-      ]]
-    }
+      inline_keyboard: [
+        [{ text: "🎮 Play", web_app: { url: process.env.APP_URL } }],
+        [{ text: "💼 Wallet", callback_data: "wallet" }],
+        [{ text: "🎁 Rewards", callback_data: "rewards" }],
+      ],
+    },
   });
 });
 
-/* ================= BUY BX ================= */
 bot.on("callback_query", async (q) => {
-  if (q.data === "buy_bx") {
-    bot.sendMessage(q.message.chat.id,
-`💳 Buy BX
+  const id = q.from.id;
+  const data = q.data;
+  const user = getUser(id);
 
-Send payment to:
-TON Wallet:
-UQARo43EOAPcJs_839ntozSAv_Nktb-bvWJADqM0z9Gg8xad
+  if (data === "wallet") {
+    bot.sendMessage(id, `💼 BX Balance: ${user.bx}`);
+  }
 
-Then send proof.`);
+  if (data === "rewards") {
+    bot.sendMessage(
+      id,
+      "🎁 Rewards:\nJoin Telegram: +5 BX\nPlay 3 games: +10 BX\nInvite friend: +20 BX"
+    );
+  }
+
+  if (data.startsWith("approve_")) {
+    if (!adminIds.includes(id)) return;
+
+    const targetId = data.split("_")[1];
+    users[targetId].bx += users[targetId].pendingBuy.bx;
+    users[targetId].pendingBuy = null;
+
+    bot.sendMessage(targetId, "✅ Payment approved. BX credited.");
+  }
+
+  if (data.startsWith("reject_")) {
+    if (!adminIds.includes(id)) return;
+
+    const targetId = data.split("_")[1];
+    users[targetId].pendingBuy = null;
+
+    bot.sendMessage(targetId, "❌ Payment rejected.");
   }
 });
 
-/* ================= START SERVER ================= */
+/* ======================
+   Buy BX API (TON / USDT)
+====================== */
+app.post("/buy", (req, res) => {
+  const { telegramId, amount, method } = req.body;
+  const user = getUser(telegramId);
+
+  const bxAmount = amount * 2; // مثال: 1 TON = 2 BX
+
+  user.pendingBuy = { bx: bxAmount, method };
+
+  // إشعار الأدمن
+  adminIds.forEach((admin) => {
+    bot.sendMessage(
+      admin,
+      `🧾 New Buy Request\nUser: ${telegramId}\nBX: ${bxAmount}\nMethod: ${method}`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: "✅ Approve", callback_data: `approve_${telegramId}` },
+              { text: "❌ Reject", callback_data: `reject_${telegramId}` },
+            ],
+          ],
+        },
+      }
+    );
+  });
+
+  res.json({ ok: true });
+});
+
+/* ======================
+   Start Server
+====================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Server running on", PORT);
+  console.log("🚀 Server running on", PORT);
 });
