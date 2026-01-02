@@ -2,17 +2,13 @@
   "name": "bx-ton-bot",
   "version": "1.0.0",
   "type": "module",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/bot.js",
-    "migrate": "psql $DATABASE_URL -f src/db/migrations/001_init.sql"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
     "node-telegram-bot-api": "^0.66.0",
-    "dotenv": "^16.4.5",
-    "pg": "^8.11.5",
-    "node-fetch": "^3.3.2",
-    "express-rate-limit": "^7.3.0",
-    "crypto": "^1.0.1"
+    "dotenv": "^16.4.5"
   }
 }
