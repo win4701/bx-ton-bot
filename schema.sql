@@ -3,11 +3,14 @@ CREATE TABLE IF NOT EXISTS users (
   bx NUMERIC DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS cloud_mining (
-  user_id BIGINT PRIMARY KEY,
-  bnb NUMERIC DEFAULT 0,
-  sol NUMERIC DEFAULT 0,
-  last TIMESTAMP DEFAULT now()
+CREATE TABLE IF NOT EXISTS ton_withdrawals (
+  id SERIAL PRIMARY KEY,
+  user_id BIGINT,
+  ton NUMERIC,
+  bx NUMERIC,
+  address TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS usdt_orders (
@@ -16,7 +19,8 @@ CREATE TABLE IF NOT EXISTS usdt_orders (
   provider TEXT,
   amount NUMERIC,
   proof TEXT,
-  status TEXT DEFAULT 'pending'
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS proof_cache (
@@ -26,5 +30,4 @@ CREATE TABLE IF NOT EXISTS proof_cache (
   total_bx NUMERIC DEFAULT 0,
   updated_at TIMESTAMP DEFAULT now()
 );
-
 INSERT INTO proof_cache (id) VALUES (1) ON CONFLICT DO NOTHING;
