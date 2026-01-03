@@ -1,119 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
-<title>Bloxio BX</title>
-<script>
-if (window.Telegram?.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
-</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bloxio</title>
+
 <style>
 :root{
-  --bg:#0b0f1a; --panel:#12172a; --panel2:#0f1426;
-  --accent:#4ade80; --accent2:#60a5fa; --warn:#facc15;
-  --text:#e5e7eb; --muted:#9ca3af;
+  --bg:#0b1020; --card:#151b3a; --nav:#111633;
+  --txt:#eaeaf0; --muted:#9aa0c3; --accent:#ffd36a;
 }
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#0b0f1a,#0a0e18);color:var(--text);font-family:system-ui}
-#app{max-width:420px;margin:0 auto;padding:14px 14px 120px}
-header{padding:10px 4px 16px}
-header h1{margin:0;font-size:20px}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+}
+header{
+  padding:16px;border-bottom:1px solid #20255a;
+  display:flex;justify-content:space-between;align-items:center;
+}
+header b{color:var(--accent)}
+main{padding:16px 16px 96px}
 .card{
-  background:linear-gradient(180deg,var(--panel),var(--panel2));
-  border-radius:16px;padding:14px;margin-bottom:12px;
-  box-shadow:0 12px 28px rgba(0,0,0,.45)
+  background:var(--card);border-radius:16px;padding:14px;margin:12px 0;
 }
-.value{font-size:22px;font-weight:900}
-.sub{color:var(--muted);font-size:12px}
-.btn{width:100%;padding:12px;border-radius:12px;border:0;font-weight:800;margin-top:8px}
-.buy{background:var(--accent);color:#052e16}
-.sell{background:var(--accent2);color:#020617}
-.nav{
-  position:fixed;left:0;right:0;bottom:0;background:#0a0e18;
-  border-top:1px solid rgba(255,255,255,.06);
-  display:flex;justify-content:space-around;padding:10px 6px
+h2,h3{margin:6px 0 10px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+input,select,button,textarea{
+  width:100%;padding:10px;border-radius:10px;border:0;outline:0;
+  background:#0f1440;color:var(--txt);
 }
-.nav button{flex:1;background:none;border:0;color:var(--muted);font-weight:800;padding:8px;border-radius:10px}
-.nav button.active{color:var(--accent2);background:rgba(96,165,250,.12)}
-.hidden{display:none}
+textarea{min-height:60px}
+button.primary{background:var(--accent);color:#111;font-weight:700}
+button.ghost{background:#0f1440}
+pre{white-space:pre-wrap;word-break:break-word;background:#0f1440;padding:10px;border-radius:10px}
+
+nav{
+  position:fixed;left:0;right:0;bottom:0;background:var(--nav);
+  display:flex;border-top:1px solid #20255a
+}
+nav button{
+  flex:1;background:none;border:0;color:#7f86c8;padding:14px
+}
+nav button.active{color:var(--accent)}
+
+.hide{display:none}
+.kv{display:flex;justify-content:space-between;gap:8px}
+.kv span{color:var(--muted)}
+.badge{padding:4px 8px;border-radius:999px;background:#0f1440;color:#cfd3ff;font-size:12px}
+hr{border:0;border-top:1px solid #20255a;margin:12px 0}
 </style>
 </head>
+
 <body>
-<div id="app">
-<header><h1>Bloxio · BX</h1></header>
+<header>
+  <div><b>Bloxio</b> <span class="badge">Production</span></div>
+  <div class="small" id="net">online</div>
+</header>
 
-<section class="tab" id="wallet">
-  <div class="card">
-    <div class="value" id="bx">BX: --</div>
-    <div class="sub">Auto mining BX</div>
-    <button class="btn buy" onclick="buyBX()">Buy BX (TON)</button>
-    <button class="btn sell" onclick="withdrawTON()">Withdraw TON</button>
-  </div>
-</section>
+<main>
+  <!-- HOME -->
+  <section id="home">
+    <div class="card">
+      <h2>Balances</h2>
+      <div class="kv"><span>BX</span><b id="bx">--</b></div>
+      <div class="kv"><span>TON</span><b id="tonb">--</b></div>
+      <div class="kv"><span>USDT</span><b id="usdtb">--</b></div>
+      <div class="kv"><span>BNB</span><b id="bnb">--</b></div>
+      <div class="kv"><span>SOL</span><b id="sol">--</b></div>
+      <div class="small">Auto-Mining مفعّل</div>
+    </div>
 
-<section class="tab hidden" id="mining">
-  <div class="card">
-    <h3>Mining External (xv)</h3>
-    <div class="value" id="bnb">BNB: --</div>
-    <div class="value" id="sol">SOL: --</div>
-    <div class="sub">Auto mining per minute</div>
-  </div>
-</section>
+    <div class="card">
+      <h3>Prices</h3>
+      <div class="kv"><span>BX / TON</span><b id="p_ton">--</b></div>
+      <div class="kv"><span>BX / USDT</span><b id="p_usdt">--</b></div>
+    </div>
+  </section>
 
-<section class="tab hidden" id="casino">
-  <div class="card">
-    <div class="value" id="crash">@ --x</div>
-    <div class="value" id="dice">--</div>
-    <div class="value" id="chicken">--</div>
-  </div>
-</section>
+  <!-- WALLET -->
+  <section id="wallet" class="hide">
+    <div class="card">
+      <h3>Buy BX (TON)</h3>
+      <input id="in_ton" placeholder="TON amount" />
+      <button class="primary" onclick="buyTON()">Buy</button>
+    </div>
 
-</div>
+    <div class="card">
+      <h3>Buy BX (USDT)</h3>
+      <div class="row">
+        <select id="u_provider">
+          <option value="binance">Binance</option>
+          <option value="redotpay">RedotPay</option>
+        </select>
+        <input id="u_amount" placeholder="USDT amount" />
+      </div>
+      <textarea id="u_proof" placeholder="Proof (tx id / note)"></textarea>
+      <button class="primary" onclick="buyUSDT()">Submit (Pending)</button>
+      <div class="small">سيتم اعتماد الطلب من الأدمن أو تلقائيًا عبر Webhook.</div>
+    </div>
 
-<nav class="nav">
-  <button class="active" onclick="showTab('wallet',this)">Wallet</button>
-  <button onclick="showTab('mining',this)">Mining</button>
-  <button onclick="showTab('casino',this)">Casino</button>
+    <div class="card">
+      <h3>Withdraw TON</h3>
+      <input id="w_bx" placeholder="BX amount" />
+      <button class="primary" onclick="withdraw()">Withdraw</button>
+      <div class="small">حدود يومية + رسوم ثابتة.</div>
+    </div>
+  </section>
+
+  <!-- CASINO -->
+  <section id="casino" class="hide">
+    <div class="card">
+      <h3>Crash</h3>
+      <div class="row">
+        <input id="c_bet" placeholder="Bet BX" />
+        <input id="c_cash" placeholder="Cashout (e.g. 1.5)" />
+      </div>
+      <button class="primary" onclick="playCrash()">Play</button>
+      <pre id="c_res"></pre>
+    </div>
+
+    <div class="card">
+      <h3>Dice</h3>
+      <div class="row">
+        <input id="d_bet" placeholder="Bet BX" />
+        <input id="d_under" placeholder="Under (1-99)" />
+      </div>
+      <button class="primary" onclick="playDice()">Roll</button>
+      <pre id="d_res"></pre>
+    </div>
+
+    <div class="card">
+      <h3>Chicken Road</h3>
+      <div class="row">
+        <input id="h_bet" placeholder="Bet BX" />
+        <input id="h_step" placeholder="Step" />
+      </div>
+      <button class="primary" onclick="playChicken()">Run</button>
+      <pre id="h_res"></pre>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="hide">
+    <div class="card">
+      <h3>USDT Pending (Admin)</h3>
+      <input id="admin_id" placeholder="Admin ID" />
+      <button class="primary" onclick="loadPending()">Load</button>
+      <pre id="a_list"></pre>
+    </div>
+  </section>
+
+  <!-- PROOF -->
+  <section id="proof" class="hide">
+    <div class="card">
+      <h3>Proof / Transparency</h3>
+      <pre id="proof_box">--</pre>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="active" onclick="tab('home',this)">Home</button>
+  <button onclick="tab('wallet',this)">Wallet</button>
+  <button onclick="tab('casino',this)">Casino</button>
+  <button onclick="tab('admin',this)">Admin</button>
+  <button onclick="tab('proof',this)">Proof</button>
 </nav>
 
 <script>
-const uid = Telegram.WebApp?.initDataUnsafe?.user?.id || 1;
+/* ====== CONFIG ====== */
+const uid = 1; // demo uid (Telegram Mini App يمرر uid لاحقًا)
+const j = (p,d)=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json());
+const g = (p)=>fetch(p).then(r=>r.json());
 
-function showTab(id,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+/* ====== NAV ====== */
+function tab(id,btn){
+  document.querySelectorAll('section').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-async function buyBX(){
-  const ton = prompt("TON amount");
-  if(!ton) return;
-  await fetch('/buy/ton',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user:uid,ton:parseFloat(ton)})});
+/* ====== REFRESH ====== */
+async function refresh(){
+  const u = await j('/user',{uid});
+  bx.textContent = u.bx.toFixed(4);
+  tonb.textContent = u.ton.toFixed(4);
+  usdtb.textContent = u.usdt.toFixed(4);
+  bnb.textContent = u.bnb.toFixed(6);
+  sol.textContent = u.sol.toFixed(6);
+  const p = await g('/chart');
+  p_ton.textContent = p.bx_ton;
+  p_usdt.textContent = p.bx_usdt;
+}
+setInterval(refresh,2000); refresh();
+
+/* ====== WALLET ====== */
+function buyTON(){
+  j('/buy',{uid,ton:+in_ton.value}).then(refresh);
+}
+function buyUSDT(){
+  j('/usdt/create',{
+    uid,
+    provider:u_provider.value,
+    amount:+u_amount.value,
+    proof:u_proof.value||""
+  });
+}
+function withdraw(){
+  j('/withdraw',{uid,bx:+w_bx.value}).then(refresh);
 }
 
-async function withdrawTON(){
-  const ton = prompt("TON amount");
-  const addr = prompt("TON address");
-  if(!ton||!addr) return;
-  await fetch('/withdraw/ton',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user:uid,ton:parseFloat(ton),address:addr})});
+/* ====== CASINO ====== */
+function playCrash(){
+  j('/crash',{uid,bet:+c_bet.value,cashout:+c_cash.value})
+    .then(r=>c_res.textContent=JSON.stringify(r,null,2));
+}
+function playDice(){
+  j('/dice',{uid,bet:+d_bet.value,under:+d_under.value})
+    .then(r=>d_res.textContent=JSON.stringify(r,null,2));
+}
+function playChicken(){
+  j('/chicken',{uid,bet:+h_bet.value,step:+h_step.value})
+    .then(r=>h_res.textContent=JSON.stringify(r,null,2));
 }
 
-async function tick(){
-  try{
-    let r,d;
-    r = await fetch(`/wallet/${uid}`); d = await r.json(); bx.textContent = `BX: ${d.bx}`;
-    r = await fetch(`/mining/bnb/${uid}`); d = await r.json(); bnb.textContent = `BNB: ${d.balance}`;
-    r = await fetch(`/mining/sol/${uid}`); d = await r.json(); sol.textContent = `SOL: ${d.balance}`;
-    r = await fetch(`/casino/crash?uid=${uid}`); d = await r.json(); crash.textContent = `@ ${d.crash_at}x`;
-    r = await fetch(`/casino/dice?uid=${uid}`); d = await r.json(); dice.textContent = d.roll ?? '--';
-    r = await fetch(`/casino/chicken?uid=${uid}&step=3`); d = await r.json(); chicken.textContent = d.result ?? '--';
-  }catch(e){}
+/* ====== ADMIN ====== */
+function loadPending(){
+  fetch(`/admin/usdt/pending?admin=${admin_id.value}`)
+    .then(r=>r.json()).then(x=>a_list.textContent=JSON.stringify(x,null,2));
 }
-setInterval(tick,1500);
-tick();
+
+/* ====== PROOF ====== */
+g('/proof').then(x=>proof_box.textContent=JSON.stringify(x,null,2));
 </script>
 </body>
 </html>
