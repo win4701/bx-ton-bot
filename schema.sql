@@ -1,13 +1,22 @@
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT PRIMARY KEY,
-  bx NUMERIC DEFAULT 0
+  bx NUMERIC DEFAULT 0,
+  last_mine INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS games (
+  id SERIAL PRIMARY KEY,
+  user_id BIGINT,
+  game TEXT,
+  result TEXT,
+  multiplier NUMERIC,
+  created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS ton_withdrawals (
   id SERIAL PRIMARY KEY,
   user_id BIGINT,
   ton NUMERIC,
-  bx NUMERIC,
   address TEXT,
   status TEXT DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT now()
@@ -23,11 +32,11 @@ CREATE TABLE IF NOT EXISTS usdt_orders (
   created_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS proof_cache (
-  id INT PRIMARY KEY DEFAULT 1,
-  total_ton NUMERIC DEFAULT 0,
-  total_usdt NUMERIC DEFAULT 0,
-  total_bx NUMERIC DEFAULT 0,
-  updated_at TIMESTAMP DEFAULT now()
+-- Mining BNB / SOL (xv)
+CREATE TABLE IF NOT EXISTS mining_external (
+  user_id BIGINT,
+  asset TEXT,               -- bnb | sol
+  balance NUMERIC DEFAULT 0,
+  last_mine INTEGER DEFAULT 0,
+  PRIMARY KEY (user_id, asset)
 );
-INSERT INTO proof_cache (id) VALUES (1) ON CONFLICT DO NOTHING;
