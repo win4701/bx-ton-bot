@@ -1,86 +1,223 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width"/>
-<title>Bloxio</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Bloxio BX</title>
+
+<!-- Telegram Mini App -->
+<script>
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+</script>
+
 <style>
-body{margin:0;background:#070a14;color:#e5e7eb;font-family:system-ui}
-header{padding:14px;font-weight:900}
-.card{background:#0b1020;margin:10px;padding:12px;border-radius:12px}
-button{width:100%;padding:12px;margin-top:6px;border:0;border-radius:10px;font-weight:800}
-.primary{background:#facc15;color:#020617}
-small{color:#9ca3af}
+:root{
+  --bg:#070a14;
+  --card:#0b1020;
+  --accent:#facc15;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(1200px 600px at top,#0b1228,var(--bg));
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+}
+#app{
+  max-width:420px;
+  margin:0 auto;
+  padding-bottom:90px;
+}
+
+/* 3D Card */
+.card{
+  background:linear-gradient(180deg,#0f1733,#0b1020);
+  border-radius:18px;
+  margin:12px;
+  padding:16px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  transform:translateZ(0);
+}
+.card h3{margin:0 0 8px}
+
+/* Header */
+header{
+  padding:18px 16px;
+  font-weight:900;
+  letter-spacing:.5px;
+}
+
+/* 3D Buttons */
+.btn{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:14px;
+  border:0;
+  font-weight:800;
+  background:linear-gradient(180deg,var(--accent),#eab308);
+  color:#111827;
+  box-shadow:0 10px 20px rgba(250,204,21,.35);
+}
+.btn.dark{
+  background:linear-gradient(180deg,#1f2937,#020617);
+  color:var(--text);
+  box-shadow:0 10px 20px rgba(0,0,0,.5);
+}
+
+/* Tabs */
+nav{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#020617;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+  box-shadow:0 -10px 30px rgba(0,0,0,.8);
+}
+nav button{
+  background:none;
+  border:0;
+  color:var(--muted);
+  font-weight:700;
+}
+nav button.active{color:var(--accent)}
+
+.hidden{display:none}
+
+/* Small */
+small{color:var(--muted)}
 </style>
 </head>
+
 <body>
-<header>BX — Bloxio</header>
+<div id="app">
 
-<div class="card">
-<h3>📊 Market</h3>
-<div id="ticker"></div>
+<header>BX · Bloxio</header>
+
+<!-- WALLET -->
+<div class="card tab" id="wallet">
+  <h3>💼 Wallet</h3>
+  <div id="balance">BX: --</div>
+  <button class="btn" onclick="buyTon()">Buy BX (TON)</button>
+  <button class="btn dark" onclick="withdraw()">Withdraw TON</button>
 </div>
 
-<div class="card">
-<h3>🎰 Casino</h3>
-<button onclick="crash()">Crash</button>
-<button onclick="dice()">Dice</button>
+<!-- PLAY -->
+<div class="card tab hidden" id="play">
+  <h3>🎰 Casino</h3>
+  <button class="btn" onclick="playCrash()">Crash</button>
+  <button class="btn dark" onclick="playDice()">Dice</button>
 </div>
 
-<div class="card">
-<h3>💰 Wallet</h3>
-<div id="bal"></div>
-<button class="primary" onclick="buyTon()">Buy BX (TON)</button>
-<button onclick="withdraw()">Withdraw TON</button>
+<!-- MARKET -->
+<div class="card tab hidden" id="market">
+  <h3>📊 Market</h3>
+  <div id="price">Loading…</div>
+  <small>Live from STON.fi</small>
 </div>
 
-<div class="card">
-<h3>🛠 Admin</h3>
-<button onclick="admin()">Load Pending</button>
-<pre id="adm"></pre>
+<!-- MORE -->
+<div class="card tab hidden" id="more">
+  <h3>ℹ️ Proof</h3>
+  <button class="btn dark" onclick="loadProof()">View Proof-of-Reserve</button>
+  <pre id="proof"></pre>
 </div>
+
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="active" onclick="showTab('wallet',this)">Wallet</button>
+  <button onclick="showTab('play',this)">Play</button>
+  <button onclick="showTab('market',this)">Market</button>
+  <button onclick="showTab('more',this)">More</button>
+</nav>
 
 <script>
-const tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand();}
-const uid=tg?.initDataUnsafe?.user?.id||0;
+/* =========================
+   Mini App Core
+========================= */
+const tg = window.Telegram?.WebApp;
+const uid = tg?.initDataUnsafe?.user?.id || 0;
 
-async function init(){
- await fetch('/user/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid})});
- loadMarket(); loadBal();
+/* Tabs */
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
 }
+
+/* Wallet */
+async function loadBalance(){
+  const r = await fetch(`/wallet/${uid}`);
+  const d = await r.json();
+  balance.textContent = `BX: ${d.bx}`;
+}
+loadBalance();
+
+/* Buy */
+async function buyTon(){
+  const ton = prompt("TON amount");
+  if(!ton) return;
+  const r = await fetch('/buy/ton',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:uid,ton:parseFloat(ton)})
+  });
+  alert(JSON.stringify(await r.json()));
+  loadBalance();
+}
+
+/* Withdraw */
+async function withdraw(){
+  const ton = prompt("TON amount");
+  const addr = prompt("TON address");
+  if(!ton||!addr) return;
+  const r = await fetch('/withdraw/ton',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:uid,ton:parseFloat(ton),address:addr})
+  });
+  alert(JSON.stringify(await r.json()));
+}
+
+/* Casino */
+async function playCrash(){
+  const r = await fetch(`/casino/crash?uid=${uid}`);
+  alert(JSON.stringify(await r.json()));
+}
+async function playDice(){
+  const r = await fetch('/casino/dice',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:uid})
+  });
+  alert(JSON.stringify(await r.json()));
+}
+
+/* Market */
 async function loadMarket(){
- const d=await (await fetch('/market')).json();
- ticker.textContent=`BX/TON ${d.bx_ton} | BX/USDT ${d.bx_usdt} | Vol ${d.vol}`;
+  const r = await fetch('/market');
+  const d = await r.json();
+  price.textContent = `BX/TON ${d.bx_ton} | BX/USDT ${d.bx_usdt}`;
 }
 setInterval(loadMarket,30000);
+loadMarket();
 
-async function loadBal(){
- const d=await (await fetch(`/wallet/${uid}`)).json();
- bal.textContent=`BX Balance: ${d.bx}`;
+/* Proof */
+async function loadProof(){
+  const r = await fetch('/proof');
+  proof.textContent = JSON.stringify(await r.json(),null,2);
 }
-
-async function crash(){
- alert(JSON.stringify(await (await fetch(`/casino/crash?uid=${uid}`)).json()));
-}
-async function dice(){
- alert(JSON.stringify(await (await fetch('/casino/dice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid})})).json()));
-}
-async function buyTon(){
- const ton=prompt("TON amount");
- alert(JSON.stringify(await (await fetch('/buy/ton',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid,ton:parseFloat(ton)})})).json()));
- loadBal();
-}
-async function withdraw(){
- const ton=prompt("TON amount");
- const addr=prompt("TON address");
- alert(JSON.stringify(await (await fetch('/withdraw/ton',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:uid,ton:parseFloat(ton),address:addr})})).json()));
-}
-async function admin(){
- const a=prompt("Admin ID");
- const d=await (await fetch(`/admin/pending?admin=${a}`)).json();
- adm.textContent=JSON.stringify(d,null,2);
-}
-init();
 </script>
 </body>
 </html>
