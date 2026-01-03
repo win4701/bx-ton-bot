@@ -1,42 +1,36 @@
-CREATE TABLE IF NOT EXISTS users (
-  id BIGINT PRIMARY KEY,
-  bx NUMERIC DEFAULT 0,
-  last_mine INTEGER DEFAULT 0
+CREATE TABLE IF NOT EXISTS users(
+  uid INTEGER PRIMARY KEY,
+  bx REAL DEFAULT 5,
+  ton REAL DEFAULT 0,
+  usdt REAL DEFAULT 0,
+  mine_rate REAL DEFAULT 0.06,
+  last_mine REAL DEFAULT 0,
+  wd_today REAL DEFAULT 0,
+  wd_day INTEGER DEFAULT 0,
+  bnb REAL DEFAULT 0,
+  sol REAL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS games (
-  id SERIAL PRIMARY KEY,
-  user_id BIGINT,
+CREATE TABLE IF NOT EXISTS casino_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  uid INTEGER,
   game TEXT,
+  bet REAL,
   result TEXT,
-  multiplier NUMERIC,
-  created_at TIMESTAMP DEFAULT now()
+  ts REAL
 );
 
-CREATE TABLE IF NOT EXISTS ton_withdrawals (
-  id SERIAL PRIMARY KEY,
-  user_id BIGINT,
-  ton NUMERIC,
-  address TEXT,
-  status TEXT DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS usdt_orders (
-  id SERIAL PRIMARY KEY,
-  user_id BIGINT,
+CREATE TABLE IF NOT EXISTS usdt_orders(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  uid INTEGER,
   provider TEXT,
-  amount NUMERIC,
+  amount REAL,
   proof TEXT,
   status TEXT DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT now()
+  ts REAL
 );
 
--- Mining BNB / SOL (xv)
-CREATE TABLE IF NOT EXISTS mining_external (
-  user_id BIGINT,
-  asset TEXT,               -- bnb | sol
-  balance NUMERIC DEFAULT 0,
-  last_mine INTEGER DEFAULT 0,
-  PRIMARY KEY (user_id, asset)
+CREATE TABLE IF NOT EXISTS analytics(
+  k TEXT PRIMARY KEY,
+  v REAL
 );
